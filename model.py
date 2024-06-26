@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from timm.models.registry import register_model
 from torchvision import models
-from efficientnet_pytorch import EfficientNet
+# from efficientnet_pytorch import EfficientNet
 
 
 def drop_path(x, drop_prob: float = 0., training: bool = False):
