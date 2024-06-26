@@ -41,18 +41,18 @@ def main():
     # create model
     model = create_model(num_classes=num_classes).to(device)
     # load model weights
-    model_weight_path = "./weights/1st_convnext_small_batch8.pth"      # model종류, weight, test_path 바꾸기!!
+    model_weight_path = "../ConvNeXt/weights/1st_convnext_small_batch8.pth"      # model종류, weight, test_path 바꾸기!!
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
 
-    test_path = 'C:/Users/Seo/PycharmProjects/WRA-Net/test/PV/WRANet22/restored_imgs'
+    test_path = '/content/drive/MyDrive/Colab Notebooks/test/PV/WRANet5/restored_imgs'
     assert os.path.exists(test_path), "file: '{}' does not exist.".format(test_path)
     test_images_path = []
     test_images_label = []
 
     test_path_1 = os.listdir(test_path)         # test의 하위 목록에는 class 폴더가 아닌 엑셀파일도 들어있음
     test_path_1.sort()
-    class_list = os.listdir('C:/Users/Seo/Desktop/2_fold/blurred/PV/2nd/Test')  # class 이름만 뽑는 것, 경로 바꾸지 않아도 됨
+    class_list = os.listdir('/content/drive/MyDrive/Colab Notebooks/PV_class_list')  # class 이름만 뽑는 것, 경로 바꾸지 않아도 됨
     class_list.sort()
     class_indices = dict((k, v) for v, k in enumerate(class_list))
 
