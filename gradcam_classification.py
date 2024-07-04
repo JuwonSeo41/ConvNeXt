@@ -19,12 +19,10 @@ class_list = {
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = convnext_small(38)
-model.load_state_dict(torch.load('C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt/weights/1st_convnext_small_batch8.pth'))
+model.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_convnext_small_batch8.pth'))
 model.eval()
 
 target_layer = [model.stages[-1][-1].dwconv]
-# class_index = 0
-# targets = [ClassifierOutputTarget(class_index)]       # 주의시킬 class index
 
 img_path = 'D:/2_fold/PV_2_fold/1st/Train'
 imgs = []
@@ -59,15 +57,12 @@ for image in imgs:
 
     print(f"Grayscale CAM size: {grayscale_cam.shape}")
 
-    # image = bgr_image / 255.0
     image = np.array(rgb_image) / 255.0
     visualization = show_cam_on_image(image, grayscale_cam, use_rgb=True)
     visualization = Image.fromarray(visualization)
-    os.makedirs(f'C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt/grad_cam/{target_layer}/{class_name}', exist_ok=True)
-    visualization.save(f'C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt/grad_cam/{target_layer}/{class_name}/{filename}')
+    os.makedirs(f'/content/drive/MyDrive/Colab Notebooks/ConvNeXt/grad_cam/{target_layer}/{class_name}', exist_ok=True)
+    visualization.save(f'/content/drive/MyDrive/Colab Notebooks/ConvNeXt/grad_cam/{target_layer}/{class_name}/{filename}')
     print(filename)
-
-# You can also pass aug_smooth=True and eigen_smooth=True, to apply smoothing.
 
 
 
