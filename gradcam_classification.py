@@ -24,7 +24,7 @@ model.eval()
 
 target_layer = [model.stages[-1][-1].dwconv]
 
-img_path = '/content/'
+img_path = '/content/PV_2_fold/1st/Train'
 imgs = []
 for class_folder in os.listdir(img_path):
     class_path = os.path.join(img_path, class_folder)
