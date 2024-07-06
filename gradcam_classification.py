@@ -22,7 +22,7 @@ model = convnext_small(38)
 model.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_convnext_small_batch8.pth'))
 model.eval()
 
-target_layer = [model.stages[-1][-1].dwconv]
+target_layer = [model.stages[2][-1].dwconv]
 
 # img_path = '/content/PV_2_fold/1st/Train'
 img_path = '/content/drive/MyDrive/Colab Notebooks/test/PV/WRANet-PAM1st/restored_imgs'
