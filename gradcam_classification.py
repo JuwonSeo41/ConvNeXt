@@ -1,7 +1,7 @@
 from pytorch_grad_cam import GradCAM, GradCAMPlusPlus, EigenCAM
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
-from model import convnext_small
+from model import convnext_small, MobileNetV2, ResNet50,VGG16
 import os
 from PIL import Image
 from torchvision import transforms
@@ -18,14 +18,16 @@ class_list = {
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = convnext_small(38)
-model.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_convnext_small_batch8.pth'))
+model = VGG16(38)
+model.load_state_dict(torch.load('C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt/weights/1st_MobileNetV2_batch8.pth'))
 model.eval()
+model.to(device)
 
-target_layer = [model.stages[2][-1].dwconv]
+target_layer = [model.stages[-1][-1].dwconv]
+# class_index = 0
+# targets = [ClassifierOutputTarget(class_index)]       # 주의시킬 class index
 
-# img_path = '/content/PV_2_fold/1st/Train'
-img_path = '/content/drive/MyDrive/Colab Notebooks/test/PV/WRANet-PAM1st/restored_imgs_2'
+img_path = 'D:/2_fold/blurred/PV/1st/Test'
 imgs = []
 for class_folder in os.listdir(img_path):
     class_path = os.path.join(img_path, class_folder)
@@ -54,16 +56,17 @@ for image in imgs:
 
     cam = GradCAM(model=model, target_layers=target_layer)
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets, eigen_smooth=True, aug_smooth=True)
-    grayscale_cam = grayscale_cam[0, :]
+    grayscale_cam = grayscale_cam[0, :]   # 차원 제거
 
     print(f"Grayscale CAM size: {grayscale_cam.shape}")
 
     image = np.array(rgb_image) / 255.0
     visualization = show_cam_on_image(image, grayscale_cam, use_rgb=True)
     visualization = Image.fromarray(visualization)
-    os.makedirs(f'/content/drive/MyDrive/Colab Notebooks/ConvNeXt/grad_cam/{target_layer}/{class_name}', exist_ok=True)
-    visualization.save(f'/content/drive/MyDrive/Colab Notebooks/ConvNeXt/grad_cam/{target_layer}/{class_name}/{filename}')
+    grayscale_cam = (grayscale_cam * 255).astype(np.uint8)
+    grayscale_cam = Image.fromarray(grayscale_cam)
+    os.makedirs(f'D:/PycharmProjects/ConvNeXt/grad_cam/{target_layer}/gray-cam/{class_name}', exist_ok=True)
+    os.makedirs(f'D:/PycharmProjects/ConvNeXt/grad_cam/{target_layer}/rgb-cam/{class_name}', exist_ok=True)
+    grayscale_cam.save(f'D:/PycharmProjects/ConvNeXt/grad_cam/{target_layer}/gray-cam/{class_name}/{filename}')
+    visualization.save(f'D:/PycharmProjects/ConvNeXt/grad_cam/{target_layer}/rgb-cam/{class_name}/{filename}')
     print(filename)
-
-
-
