@@ -281,6 +281,14 @@ def ResNet50(num_classes):
 
     return model
 
+def VGG16(num_classes):
+    model = models.vgg16(pretrained=True)
+
+    in_features = model.classifier[6].in_features
+    model.classifier[6] = nn.Linear(in_features, num_classes)
+
+    return model
+
 # def convnext_tiny(num_classes: int):
 #     # https://dl.fbaipublicfiles.com/convnext/convnext_tiny_1k_224_ema.pth
 #     model = ConvNeXt(depths=[3, 3, 9, 3],
