@@ -15,7 +15,7 @@ def already_split_data(root: str):
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
 
     train_path = os.path.join(root, 'Train')
-    val_path = os.path.join(root, 'Valid')
+    val_path = os.path.join(root, 'Val')
 
     # class_list = [cla for cla in os.listdir(train_path) if os.path.isdir(os.path.join(root, cla))]
     class_list = os.listdir(train_path)
@@ -253,7 +253,10 @@ def evaluate(model, data_loader, device, epoch):
                 accu_num.item() / sample_num
             )
 
-    return accu_loss.item() / (step + 1), accu_num.item() / sample_num, average_accuracy.item()
+        for i in range(num_classes):
+        class_per_accuracy[i] = class_correct[i] / class_total[i]
+
+    return accu_loss.item() / (step + 1), accu_num.item() / sample_num, average_accuracy.item(), class_per_accuracy
 
 
 def create_lr_scheduler(optimizer,
