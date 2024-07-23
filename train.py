@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 from my_dataset import MyDataSet
-from model import ResNet50 as create_model
+from model import VGG16 as create_model
 from utils import already_split_data, read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 
 
@@ -20,10 +20,10 @@ def main(args):
 
 
     # train 과 val 이 이미 나눠져 있을 경우
-    # train_images_path, train_images_label, val_images_path, val_images_label = already_split_data(args.data_path)
+    train_images_path, train_images_label, val_images_path, val_images_label = already_split_data(args.data_path)
 
     # train 과 val 이 안 나눠져 있는 경우
-    train_images_path, train_images_label, val_images_path, val_images_label = read_split_data(args.data_path)
+    # train_images_path, train_images_label, val_images_path, val_images_label = read_split_data(args.data_path)
 
     img_size = 256
     data_transform = {
@@ -101,7 +101,7 @@ def main(args):
                                                 # lr_scheduler=lr_scheduler)
 
         # validate
-        val_loss, val_acc, _ = evaluate(model=model,
+        val_loss, val_acc, _, _ = evaluate(model=model,
                                         data_loader=val_loader,
                                         device=device,
                                         epoch=epoch)
@@ -123,13 +123,13 @@ if __name__ == '__main__':
     parser.add_argument('--num_classes', type=int, default=38)
     parser.add_argument('--epochs', type=int, default=16)
     parser.add_argument('--batch-size', type=int, default=8)
-    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--wd', type=float, default=0)
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
     parser.add_argument('--data-path', type=str,
-                        default='C:/Users/Seo/Desktop/2_fold/PV_2_fold/2nd/Train')
+                        default='/content/PV_2_fold/1st')
 
     # 预训练权重路径，如果不想载入就设置为空字符
     # 链接: https://pan.baidu.com/s/1aNqQW4n_RrUlWUBNlaJRHA  密码: i83t
