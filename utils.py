@@ -215,8 +215,10 @@ def evaluate(model, data_loader, device, epoch):
     accu_num = torch.zeros(1).to(device)   # 累计预测正确的样本数
     accu_loss = torch.zeros(1).to(device)  # 累计损失
 
-    class_correct = torch.zeros(38).to(device)  # zeros 에 class 개수 넣기
-    class_total = torch.zeros(38).to(device)
+    num_classes = 38
+    class_correct = torch.zeros(num_classes).to(device)  # zeros 에 class 개수 넣기
+    class_total = torch.zeros(num_classes).to(device)
+    class_per_accuracy = torch.zeros(num_classes).to(device)
 
     sample_num = 0
     data_loader = tqdm(data_loader, file=sys.stdout)
