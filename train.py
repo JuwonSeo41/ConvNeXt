@@ -114,7 +114,7 @@ def main(args):
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
 
         if best_acc < val_acc:
-            torch.save(model.state_dict(), f"./weights/{create_model.__name__}_batch{batch_size}.pth")
+            torch.save(model.state_dict(), f"/content/drive/MyDrive/Colab Notebooks/ConvNeXt/weights/{create_model.__name__}_batch{batch_size}.pth")
             best_acc = val_acc
 
 
