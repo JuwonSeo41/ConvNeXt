@@ -253,7 +253,7 @@ def evaluate(model, data_loader, device, epoch):
                 accu_num.item() / sample_num
             )
 
-        for i in range(num_classes):
+    for i in range(num_classes):
         class_per_accuracy[i] = class_correct[i] / class_total[i]
 
     return accu_loss.item() / (step + 1), accu_num.item() / sample_num, average_accuracy.item(), class_per_accuracy
