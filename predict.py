@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from my_dataset import MyDataSet
 from utils import evaluate
 
-from model import convnext_small as create_model
+from model import VGG16 as create_model
 
 
 def main():
@@ -41,7 +41,7 @@ def main():
     # create model
     model = create_model(num_classes=num_classes).to(device)
     # load model weights
-    model_weight_path = "/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_convnext_small_batch8.pth"      # model종류, weight, test_path 바꾸기!!
+    model_weight_path = "/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_VGG16_batch8.pth"      # model종류, weight, test_path 바꾸기!!
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
 
