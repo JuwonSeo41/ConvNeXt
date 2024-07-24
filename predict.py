@@ -41,7 +41,7 @@ def main():
     # create model
     model = create_model(num_classes=num_classes).to(device)
     # load model weights
-    model_weight_path = "/content/drive/MyDrive/Colab Notebooks/ConvNeXt_weights/weights/1st_VGG16_batch8.pth"      # model종류, weight, test_path 바꾸기!!
+    model_weight_path = "/content/drive/MyDrive/Colab Notebooks/ConvNeXt/weights/1st_VGG16_batch8.pth"      # model종류, weight, test_path 바꾸기!!
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
 
