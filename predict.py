@@ -21,16 +21,6 @@ def main():
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-    # load image
-    # img_path = "../tulip.jpg"
-    # assert os.path.exists(img_path), "file: '{}' dose not exist.".format(img_path)
-    # img = Image.open(img_path)
-    # plt.imshow(img)
-    # # [N, C, H, W]
-    # img = data_transform(img)
-    # # expand batch dimension
-    # img = torch.unsqueeze(img, dim=0)
-
     # read class_indict
     json_path = './class_indices.json'
     assert os.path.exists(json_path), "file: '{}' dose not exist.".format(json_path)
@@ -78,48 +68,33 @@ def main():
                                               pin_memory=True,
                                               collate_fn=test_dataset.collate_fn)
 
-    test_loss, test_acc, test_average_acc = evaluate(model=model,
-                                                     data_loader=test_loader,
-                                                     device=device,
-                                                     epoch=1)
+    test_loss, test_acc, test_average_acc, class_per_accuracy = evaluate(model=model,
+                                                                         data_loader=test_loader,
+                                                                         device=device,
+                                                                         epoch=1)
+
+    class_index = {
+        "AP_C": 0, "AP_H": 1, "AP_R": 2, "AP_S": 3, "BB_H": 4, "CH_H": 5, "CH_P": 6, "CO_B": 7, "CO_C": 8, "CO_H": 9,
+        "CO_R": 10,
+        "GR_B": 11, "GR_E": 12, "GR_H": 13, "GR_R": 14, "OR_H": 15, "PB_B": 16, "PB_H": 17, "PH_B": 18, "PH_H": 19,
+        "PO_EB": 20,
+        "PO_H": 21, "PO_LB": 22, "RE_H": 23, "SO_H": 24, "SQ_H": 25, "ST_H": 26, "ST_S": 27, "TO_BS": 28, "TO_EB": 29,
+        "TO_H": 30,
+        "TO_LB": 31, "TO_M": 32, "TO_SL": 33, "TO_SS": 34, "TO_TS": 35, "TO_V": 36, "TO_Y": 37
+    }
+
+    index_to_class = {v: k for k, v in class_index.items()}
 
     testtxt = '\n\ttest loss: {:.6f}\ttest accuracy: {:.6f}\ttest average accuracy: {:.6f}\tmodel: {}'\
         .format(test_loss, test_acc, test_average_acc, create_model.__name__)
+    cla_per_acc = ['[{}] accuracy: {:.6f}'.format(index_to_class[i], class_per_accuracy[i]) for i in range(num_classes)]
+    cla_per_acc_str = '\n'.join(cla_per_acc)     # 리스트를 하나의 문자열로 연결
     print(testtxt)
+    print(cla_per_acc)
     save_path = open(os.path.join('C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt', 'testtxt.txt'), "a")
+    save_path_1 = open(os.path.join('C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt', 'cla_per_acc.txt'), "a")
     save_path.write(testtxt)
-
-    # for class_folder in os.listdir(img_folder_path):
-    #     class_folder_path = os.path.join(img_folder_path, class_folder)
-    #
-    #     if os.path.isdir(class_folder_path):
-    #         print(f"\nClass: {class_folder}")
-    #     for img in os.listdir(class_folder_path):
-    #         img_path = os.path.join(class_folder_path, img)
-    #         assert os.path.exists(img_path)
-    #         img = Image.open(img_path)
-    #         plt.imshow(img)
-    #         img = data_transform(img)
-    #         img = torch.unsqueeze(img, dim=0)  # img 에 batch 차원을 추가해 [B, C, H, W] 로 만듬
-    #         with torch.no_grad():
-    #             output = torch.squeeze(model(img.to(device))).cpu()     # 이미지를 모델에 넣어서 예측 결과를 나타냄
-    #             predict = torch.softmax(output, dim=0)      # 예측 결과에 대한 각 class 의 확률 값으로 저장
-    #             predict_cla = torch.argmax(predict).numpy()     # 예측 결과가 가장 높은 class 즉, 이미지에 대해 모델이 예측한 class
-
-    # with torch.no_grad():
-    #     # predict class
-    #     output = torch.squeeze(model(img.to(device))).cpu()
-    #     predict = torch.softmax(output, dim=0)
-    #     predict_cla = torch.argmax(predict).numpy()
-    #
-    # print_res = "class: {}   prob: {:.3}".format(class_indict[str(predict_cla)],
-    #                                              predict[predict_cla].numpy())
-    # plt.title(print_res)
-    # for i in range(len(predict)):
-    #     print("class: {:10}   prob: {:.3}".format(class_indict[str(i)],
-    #                                               predict[i].numpy()))
-    # plt.show()
-
+    save_path_1.write(cla_per_acc_str)
 
 if __name__ == '__main__':
     main()
