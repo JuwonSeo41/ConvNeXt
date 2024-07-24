@@ -32,7 +32,7 @@ target_layer = [model.features[2]]   # VGG16
 
 print(target_layer)
 
-img_path = 'D:/2_fold/blurred/PV/1st/Test'
+img_path = '/content/blurred/PV/1st/Train'
 imgs = []
 for class_folder in os.listdir(img_path):
     class_path = os.path.join(img_path, class_folder)
