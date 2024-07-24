@@ -45,7 +45,7 @@ def main():
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
 
-    test_path = '/content/drive/MyDrive/Colab Notebooks/test/PV/WRANet5/restored_imgs'
+    test_path = '/content/PV_2_fold/1st/Test'
     assert os.path.exists(test_path), "file: '{}' does not exist.".format(test_path)
     test_images_path = []
     test_images_label = []
