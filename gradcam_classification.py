@@ -19,13 +19,18 @@ class_list = {
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = VGG16(38)
-model.load_state_dict(torch.load('C:/Users/Seo/PycharmProjects/pytorch_classification/ConvNeXt/weights/1st_MobileNetV2_batch8.pth'))
+model.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/ConvNeXt/weights/1st_VGG16_batch8.pth'))
 model.eval()
 model.to(device)
 
-target_layer = [model.stages[-1][-1].dwconv]
+# target_layer = [model.stages[-1][-1].dwconv]  # convnext_small
+target_layer = [model.features[2]]   # VGG16
+# target_layer = [model.features[0][0]]   # MobileNetV2
+# target_layer = [model.layer2[-1].conv3]   # ResNet50
 # class_index = 0
 # targets = [ClassifierOutputTarget(class_index)]       # 주의시킬 class index
+
+print(target_layer)
 
 img_path = 'D:/2_fold/blurred/PV/1st/Test'
 imgs = []
