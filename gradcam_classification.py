@@ -17,6 +17,7 @@ class_list = {
     }
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
 
 model = VGG16(38)
 model.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/ConvNeXt/weights/1st_VGG16_batch8.pth'))
