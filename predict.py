@@ -16,17 +16,11 @@ def main():
     print(f"using {device} device.")
 
     num_classes = 38
-    img_size = 256
-    data_transform = transforms.Compose([transforms.Resize((img_size, img_size)),
+
+    data_transform = transforms.Compose([
                                          transforms.ToTensor(),
                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-    # read class_indict
-    json_path = './class_indices.json'
-    assert os.path.exists(json_path), "file: '{}' dose not exist.".format(json_path)
-
-    with open(json_path, "r") as f:
-        class_indict = json.load(f)
 
     # create model
     model = create_model(num_classes=num_classes).to(device)
