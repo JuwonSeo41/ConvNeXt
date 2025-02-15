@@ -104,7 +104,8 @@ def main(args):
         val_loss, val_acc, *_ = evaluate(model=model,
                                         data_loader=val_loader,
                                         device=device,
-                                        epoch=epoch)
+                                        epoch=epoch,
+                                        num_classes=args.num_classes)
 
         tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
         tb_writer.add_scalar(tags[0], train_loss, epoch)
