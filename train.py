@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 from my_dataset import MyDataSet
-from model import VGG16 as create_model
+from model import MobileNetV2 as create_model
 from utils import already_split_data, read_split_data, create_lr_scheduler, get_params_groups, train_one_epoch, evaluate
 
 
