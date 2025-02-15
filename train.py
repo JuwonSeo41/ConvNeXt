@@ -90,7 +90,7 @@ def main(args):
     #                                    warmup=True, warmup_epochs=1)
 
     best_acc = 0.
-    tb_writer = SummaryWriter(log_dir=os.path.join('runs', f'{create_model.__name__}_batch{batch_size}'))
+    tb_writer = SummaryWriter(log_dir=os.path.join('/content/drive/MyDrive/Colab Notebooks/ConvNeXt/runs', f'{create_model.__name__}_batch{batch_size}'))
     for epoch in range(args.epochs):
         # train
         train_loss, train_acc = train_one_epoch(model=model,
