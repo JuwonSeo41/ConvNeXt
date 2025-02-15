@@ -1,27 +1,36 @@
+import random
+
+import numpy as np
 from PIL import Image
 import torch
 from torch.utils.data import Dataset
+from PDFs import generate_augmented_images
 
 
 class MyDataSet(Dataset):
     """自定义数据集"""
 
-    def __init__(self, images_path: list, images_class: list, transform=None):
+    def __init__(self, images_path: list, images_class: list, transform=None, is_train=False):
         self.images_path = images_path
         self.images_class = images_class
         self.transform = transform
+        self.is_train = is_train
 
     def __len__(self):
         return len(self.images_path)
 
     def __getitem__(self, item):
         img = Image.open(self.images_path[item]).convert("RGB")
-        # RGB为彩色图片，L为灰度图片
         if img.mode != 'RGB':
             raise ValueError("image: {} isn't RGB mode.".format(self.images_path[item]))
         label = self.images_class[item]
 
         if self.transform is not None:
+            if self.is_train:
+                img = np.array(img)
+                aug_img = generate_augmented_images(img)
+                img = random.choice(aug_img)
+                img = Image.fromarray(img)
             img = self.transform(img)
 
         return img, label
