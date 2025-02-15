@@ -6,9 +6,13 @@ import random
 import math
 
 import torch
+import numpy as np
+import cv2
 from tqdm import tqdm
 
 import matplotlib.pyplot as plt
+from metrics import Measurement
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 def already_split_data(root: str):
@@ -166,6 +170,19 @@ def read_pickle(file_name: str) -> list:
         return info_list
 
 
+def rgb_to_lab_opencv(tensor_img):
+    # PyTorch Tensor (B, C, H, W) → NumPy 배열 (B, H, W, C)
+    np_img = tensor_img.permute(0, 2, 3, 1).cpu().numpy()
+
+    # OpenCV로 RGB → LAB 변환 (배치 단위 처리)
+    lab_imgs = np.array([cv2.cvtColor(img, cv2.COLOR_RGB2LAB) for img in np_img])
+
+    # NumPy (B, H, W, C) → PyTorch Tensor (B, C, H, W)
+    lab_tensors = torch.tensor(lab_imgs, dtype=torch.float32).permute(0, 3, 1, 2)
+
+    return lab_tensors
+
+
 def train_one_epoch(model, optimizer, data_loader, device, epoch, lr_scheduler):
     model.train()
     loss_function = torch.nn.CrossEntropyLoss()
@@ -175,11 +192,20 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, lr_scheduler):
 
     sample_num = 0
     data_loader = tqdm(data_loader, file=sys.stdout)
+
     for step, data in enumerate(data_loader):
         images, labels = data
         sample_num += images.shape[0]
 
-        pred = model(images.to(device))
+        if type(model).__name__ == "TwoPathInceptionV3":
+            print("TwoPathInceptionV3")
+            lab_img = rgb_to_lab_opencv(images)
+            l_img = lab_img[:, :1, :, :]  # L 채널 (B, 1, H, W)
+            ab_img = lab_img[:, 1:, :, :]  # AB 채널 (B, 2, H, W)
+            pred = model(l_img.to(device), ab_img.to(device))
+
+        else:
+            pred = model(images.to(device))
         pred_classes = torch.max(pred, dim=1)[1]
         accu_num += torch.eq(pred_classes, labels.to(device)).sum()
 
@@ -203,33 +229,60 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, lr_scheduler):
         # update lr
         # lr_scheduler.step()
 
-    return accu_loss.item() / (step + 1), accu_num.item() / sample_num
+    train_loss = accu_loss.item() / (step + 1)
+    train_acc = accu_num.item() / sample_num
+
+    return train_loss, train_acc
 
 
 @torch.no_grad()
-def evaluate(model, data_loader, device, epoch):
+def evaluate(model, data_loader, device, epoch, num_classes):
     loss_function = torch.nn.CrossEntropyLoss()
 
     model.eval()
 
-    accu_num = torch.zeros(1).to(device)   # 累计预测正确的样本数
-    accu_loss = torch.zeros(1).to(device)  # 累计损失
+    accu_num = torch.zeros(1).to(device)
+    accu_loss = torch.zeros(1).to(device)
 
-    num_classes = 38
     class_correct = torch.zeros(num_classes).to(device)  # zeros 에 class 개수 넣기
     class_total = torch.zeros(num_classes).to(device)
     class_per_accuracy = torch.zeros(num_classes).to(device)
 
     sample_num = 0
     data_loader = tqdm(data_loader, file=sys.stdout)
+
+    measurement = Measurement(num_classes)
+    total_acc, total_precision, total_recall, total_f1score = 0, 0, 0, 0
+
     for step, data in enumerate(data_loader):
         images, labels = data
-        sample_num += images.shape[0]
+        batch_size = images.shape[0]
+        sample_num += batch_size   # total data num
 
-        pred = model(images.to(device))
+        if type(model).__name__ == "TwoPathInceptionV3":
+            lab_img = rgb_to_lab_opencv(images)
+            l_img = lab_img[:, :1, :, :]  # L 채널 (B, 1, H, W)
+            ab_img = lab_img[:, 1:, :, :]  # AB 채널 (B, 2, H, W)
+            pred = model(l_img.to(device), ab_img.to(device))
+
+        else:
+            pred = model(images.to(device))
+
         pred_classes = torch.max(pred, dim=1)[1]
         correct = torch.eq(pred_classes, labels.to(device))
-        accu_num += correct.sum()
+        accu_num += correct.sum()   # total correct
+
+        if epoch == 1:
+            pred_cpu, label_cpu = pred_classes.cpu().numpy(), labels.to(device).cpu().numpy()
+            # _acc, _precision, _recall, _f1score = measurement(pred_cpu, label_cpu)
+            _precision = precision_score(label_cpu, pred_cpu, average='micro')
+            _recall = recall_score(label_cpu, pred_cpu, average='micro')
+            _f1score = f1_score(label_cpu, pred_cpu, average='micro')
+
+        # total_acc += _acc * batch_size  # 배치 별 metric 이기 때문에
+        total_precision += _precision * batch_size  # batch_size 를 곱해 줘야
+        total_recall += _recall * batch_size    # sample_num(total) 로 나눴을 때
+        total_f1score += _f1score * batch_size  # 계산이 올바름
 
         loss = loss_function(pred, labels.to(device))
         accu_loss += loss
@@ -245,7 +298,7 @@ def evaluate(model, data_loader, device, epoch):
         if epoch == 1:
             data_loader.desc = "[ test ] loss: {:.3f}, acc: {:.3f}".format(
                 accu_loss.item() / (step + 1),
-                accu_num.item() / sample_num
+                accu_num.item() / sample_num    # total correct / total data num = accuracy
             )
 
         else:
@@ -258,7 +311,15 @@ def evaluate(model, data_loader, device, epoch):
     for i in range(num_classes):
         class_per_accuracy[i] = class_correct[i] / class_total[i]
 
-    return accu_loss.item() / (step + 1), accu_num.item() / sample_num, average_accuracy.item(), class_per_accuracy
+    val_loss = accu_loss.item() / (step + 1)
+    val_acc = accu_num.item() / sample_num
+
+    total_acc = total_acc / sample_num
+    total_precision = total_precision / sample_num
+    total_recall = total_recall / sample_num
+    total_f1score = total_f1score / sample_num
+
+    return val_loss, val_acc, average_accuracy.item(), class_per_accuracy, total_acc, total_precision, total_recall, total_f1score
 
 
 def create_lr_scheduler(optimizer,
