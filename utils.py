@@ -272,17 +272,17 @@ def evaluate(model, data_loader, device, epoch, num_classes):
         correct = torch.eq(pred_classes, labels.to(device))
         accu_num += correct.sum()   # total correct
 
-        if epoch == 1:
-            pred_cpu, label_cpu = pred_classes.cpu().numpy(), labels.to(device).cpu().numpy()
-            # _acc, _precision, _recall, _f1score = measurement(pred_cpu, label_cpu)
-            _precision = precision_score(label_cpu, pred_cpu, average='micro')
-            _recall = recall_score(label_cpu, pred_cpu, average='micro')
-            _f1score = f1_score(label_cpu, pred_cpu, average='micro')
+        # if epoch == 1:
+        #     pred_cpu, label_cpu = pred_classes.cpu().numpy(), labels.to(device).cpu().numpy()
+        #     # _acc, _precision, _recall, _f1score = measurement(pred_cpu, label_cpu)
+        #     _precision = precision_score(label_cpu, pred_cpu, average='micro')
+        #     _recall = recall_score(label_cpu, pred_cpu, average='micro')
+        #     _f1score = f1_score(label_cpu, pred_cpu, average='micro')
 
-        # total_acc += _acc * batch_size  # 배치 별 metric 이기 때문에
-        total_precision += _precision * batch_size  # batch_size 를 곱해 줘야
-        total_recall += _recall * batch_size    # sample_num(total) 로 나눴을 때
-        total_f1score += _f1score * batch_size  # 계산이 올바름
+        # # total_acc += _acc * batch_size  # 배치 별 metric 이기 때문에
+        # total_precision += _precision * batch_size  # batch_size 를 곱해 줘야
+        # total_recall += _recall * batch_size    # sample_num(total) 로 나눴을 때
+        # total_f1score += _f1score * batch_size  # 계산이 올바름
 
         loss = loss_function(pred, labels.to(device))
         accu_loss += loss
@@ -314,12 +314,13 @@ def evaluate(model, data_loader, device, epoch, num_classes):
     val_loss = accu_loss.item() / (step + 1)
     val_acc = accu_num.item() / sample_num
 
-    total_acc = total_acc / sample_num
-    total_precision = total_precision / sample_num
-    total_recall = total_recall / sample_num
-    total_f1score = total_f1score / sample_num
+    # total_acc = total_acc / sample_num
+    # total_precision = total_precision / sample_num
+    # total_recall = total_recall / sample_num
+    # total_f1score = total_f1score / sample_num
 
-    return val_loss, val_acc, average_accuracy.item(), class_per_accuracy, total_acc, total_precision, total_recall, total_f1score
+    # return val_loss, val_acc, average_accuracy.item(), class_per_accuracy, total_acc, total_precision, total_recall, total_f1score
+    return val_loss, val_acc, average_accuracy.item(), class_per_accuracy
 
 
 def create_lr_scheduler(optimizer,
